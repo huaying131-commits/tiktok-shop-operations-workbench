@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>示例 TikTok 电商工作台</title>
+  <link rel="stylesheet" href="/operations-dashboard-live.css">
+  <link rel="stylesheet" href="/operations-dashboard-detail.css">
+  <script defer src="/operations-dashboard-detail.js"></script>
+  <script defer src="/operations-dashboard-live.js"></script>
+</head>
+<body>
+  <a class="skip" href="#dashboard">跳到页面正文</a>
+  <aside class="sidebar" aria-label="工作台导航">
+    <div class="sidebar-brand">
+      <a class="brand" href="/operations" aria-label="示例 TikTok 电商工作台首页">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <strong>示例 TikTok<br>电商工作台</strong>
+      </a>
+      <p>马来西亚玩具电商自动化工作空间</p>
+    </div>
+    <nav class="nav" aria-label="工作台模块">
+      <a href="/operations" data-icon="growth" data-workspace-tab="overview" aria-current="page">运营总览</a>
+      <a href="/operations?tab=ads" data-icon="ads" data-workspace-tab="ads">广告投流</a>
+      <a href="/operations?tab=shop" data-icon="grid" data-workspace-tab="shop">店铺管理</a>
+      <a href="/operations?tab=products" data-icon="bag" data-workspace-tab="products">商品管理</a>
+      <a href="/operations?tab=orders" data-icon="truck" data-workspace-tab="orders">订单与发货</a>
+      <a href="/operations?tab=content" data-icon="videos" data-workspace-tab="content">内容运营</a>
+      <a href="/operations?tab=publishing" data-icon="publish" data-workspace-tab="publishing">账号发布</a>
+      <a href="/operations?tab=inventory" data-icon="warehouse" data-workspace-tab="inventory">库存与供应</a>
+      <a href="/operations?tab=tasks" data-icon="tasks" data-workspace-tab="tasks">任务与回执</a>
+    </nav>
+    <div class="rail-footer">
+      <div class="rail-store"><span aria-hidden="true">MY</span><div><strong>example-shop-my</strong><small>TikTok Shop · 马来西亚示例店</small></div></div>
+      <a class="legacy-link" href="/operations?tab=shop#daily-sales" data-icon="legacy">店铺日报</a>
+      <a class="legacy-link" href="/operations?tab=tasks#automation-progress" data-icon="tasks">自动化进度</a>
+    </div>
+  </aside>
+  <div class="workspace">
+    <main id="dashboard" tabindex="-1">
+      <header class="page-head">
+        <div class="page-intro">
+          <div class="page-heading"><h1 id="workspace-title">示例 TikTok 电商工作台</h1><span class="section-chip">本地实盘</span></div>
+          <p id="workspace-subtitle">马来西亚玩具电商自动化工作空间</p>
+          <div class="head-status">
+            <p id="dashboard-state" class="notice" role="status">正在读取数据…</p>
+            <a class="row-link" href="/operations?tab=tasks#today-tasks">今日待办 ↗</a>
+          </div>
+        </div>
+        <div class="head-actions">
+          <span class="market-badge"><span class="market-flag" aria-hidden="true">🇲🇾</span>马来西亚站</span>
+          <span class="snapshot-badge"><svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 10h16m-10 5 2 2 4-4"/></svg><span id="snapshot-date">读取日期中</span></span>
+          <button class="button refresh-report" id="refresh" type="button" title="刷新数据" aria-label="刷新数据"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10a8 8 0 1 0-1.6 7M20 4v6h-6"/></svg></button>
+          <button class="button primary export-report" id="export-dashboard" type="button"><svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M12 3v13m-5-5 5 5 5-5M3 16v5h18v-5"/></svg>导出报表</button>
+        </div>
+      </header>
+      <details id="data-freshness" class="freshness-panel">
+        <summary><span><strong>数据更新时间</strong> <small id="last-local-check">正在检查</small></span></summary>
+        <div id="data-freshness-rows" class="freshness-grid"></div>
+      </details>
+      <div id="dashboard-content" aria-busy="true"></div>
+    </main>
+  </div>
+  <dialog id="details" aria-labelledby="detail-title">
+    <header class="detail-head"><div><p>业务证据</p><h2 id="detail-title"></h2></div><form method="dialog"><button class="button" aria-label="关闭详情" autofocus>×</button></form></header>
+    <div id="detail-content" class="detail-content"></div>
+  </dialog>
+  <noscript>请启用 JavaScript 以读取本地业务数据。</noscript>
+</body>
+</html>

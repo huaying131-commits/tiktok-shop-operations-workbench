@@ -1,0 +1,14 @@
+{
+  "schema": "publisher-runtime-config/v1",
+  "live_enabled": false,
+  "channel": "seller-center-page",
+  "confirmation_interval_ms": 3000,
+  "publishing_fields": {
+    "ai_disclosure": true,
+    "commercial_disclosure": true,
+    "own_brand": true,
+    "branded_content": false,
+    "music_agreement": true
+  },
+  "browser_runtime": null
+}

@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "由SQ填写唯一成片编号",
+  "region": "MY",
+  "account": "",
+  "content_code": "",
+  "source_file": "",
+  "sha256": "",
+  "bytes": null,
+  "product_id": "",
+  "sku_model": "",
+  "product_title": "",
+  "product_name": "",
+  "description": "",
+  "tags": [],
+  "caption_source": "",
+  "duration": null,
+  "width": null,
+  "height": null,
+  "ai_generated": true,
+  "footer_text": [],
+  "footer_facts_source": "",
+  "qa": {
+    "video": false,
+    "footer": false,
+    "caption": false,
+    "product": false
+  },
+  "qa_evidence": [],
+  "status": "needs_review"
+}

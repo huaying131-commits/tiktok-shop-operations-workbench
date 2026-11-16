@@ -1,0 +1,5 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),{assertAircraftLinkPolicy}=require('./aircraft-link-policy.cjs');
+const policy={content_aircraft_product_link_policy:{new_individual_links_currently_paused:true,main_product_id:'9000000000000000016',known_aircraft_product_ids:['9000000000000000040','9000000000000000037']}};
+test('AV and F15 individual links blocked while main-parent exact variants remain eligible for other guards',()=>{for(const id of ['AV8B2633-CU10-06','F15C241-R1-WH-01']){assert.throws(()=>assertAircraftLinkPolicy(id,{product_id:'9000000000000000040'},policy));assert.ok(assertAircraftLinkPolicy(id,{product_id:policy.content_aircraft_product_link_policy.main_product_id},policy).aircraft)}});
+test('K26 and Mushroom keep original links and account policy',()=>{for(const id of ['K26-R1-WH-01','MUSHROOM-R1-WH-01'])assert.equal(assertAircraftLinkPolicy(id,{product_id:'unrelated'},policy).aircraft,false)});
+test('new aircraft explicitly identified by family also blocked',()=>assert.throws(()=>assertAircraftLinkPolicy('NEWPLANE-01',{product_family:'aircraft',product_id:'individual'},policy)));

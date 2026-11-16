@@ -1,0 +1,18 @@
+{
+  "schema": "operations-trial-defaults/v1",
+  "market": "MY",
+  "shopId": "9000000000000000099",
+  "trackedPromotionPilot": "outputs/promotion-pilot/example",
+  "source": "public example",
+  "newListing": {
+    "regularListingQuantity": 100,
+    "currency": "MYR",
+    "priceRegistry": "pricing/price-registry.json",
+    "physicalStockTrackedSeparately": true
+  },
+  "newArrivalDiscount": {
+    "totalQuantityLimitPerSku": 5,
+    "buyerQuantityLimit": 1,
+    "verifyPlatformEligibility": true
+  }
+}

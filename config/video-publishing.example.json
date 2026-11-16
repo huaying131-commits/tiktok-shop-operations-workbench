@@ -1,0 +1,16 @@
+{
+  "timezone": "Asia/Kuala_Lumpur",
+  "max_per_account_per_day": 3,
+  "min_interval_seconds": 3600,
+  "source_root": "inputs/videos",
+  "archive_root": "outputs/publish/archive",
+  "accounts": [],
+  "baseline_file": "inputs/publish-baseline.json",
+  "ledger_file": "outputs/publish/ledger.jsonl",
+  "history_authority": {
+    "mode": "unverified"
+  },
+  "schedule": {
+    "status": "disabled"
+  }
+}

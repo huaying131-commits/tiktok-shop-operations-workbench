@@ -1,0 +1,14 @@
+// Fixed authorised seven-day and campaign-to-date report navigation. No paid operation.
+import fs from 'node:fs/promises';import path from 'node:path';import crypto from 'node:crypto';import {EcoGateway}from './ziniao-eco-gateway.mjs';
+const [phase,sectionId]=process.argv.slice(2);if(!['open','start12','end18','start03','end19'].includes(phase)||!/^[a-z0-9_-]{1,70}$/.test(sectionId??''))throw Error('FixedPhaseAndUniqueIdRequired');
+const matrix=JSON.parse(await fs.readFile('operations/controller/2026-10-19/eco-gateway-integration/validation-matrix.json'));if(matrix.live_cross_window_verified!==true)throw Error('LiveCrossWindowNotAccepted');
+const release=JSON.parse(await fs.readFile('outputs/ads-monitoring/2026-10-19/recovery-1832/release-readonly-v7.json'));
+if(crypto.createHash('sha256').update(await fs.readFile('scripts/ziniao-eco-gateway.mjs')).digest('hex')!==release.files.find(f=>f.path==='scripts/ziniao-eco-gateway.mjs').sha256)throw Error('ReviewedGatewayChanged');
+const out=await new EcoGateway({allowReportUi:true}).section({module:'ads',sectionId,waitMs:20000},async s=>{
+ const before=(await s.adsRead('ui-before',{mode:'ui'})).value.result;if(!before?.ok)throw Error('OwnedUiRequired');const d=before.data.dates;
+ const spec={kind:phase==='open'?'open-date':'choose-date',expected_start:d.start,expected_end:d.end,expected_pairs:d.pair_count};
+ if(phase!=='open'){spec.date=({start12:'2026-10-12',end18:'2026-10-18',start03:'2026-10-03',end19:'2026-10-19'})[phase];const c=(await s.adsRead('calendar-before',{mode:'calendar'})).value.result;if(!c?.ok)throw Error('OwnedCalendarRequired');const extra=phase==='end19'?(await s.adsRead('calendar-more',{mode:'calendar',offset:4})).value.result:null;const cells=[...c.data.cells,...(extra?.data.cells??[])];if(!cells.some(x=>x.day===String(Number(spec.date.slice(8)))&&x.ancestry.some(a=>a.class.split(/\s/).includes('theme-arco-panel-date')&&a.text.startsWith('2026-10\n'))))throw Error('ExactVisibleDayInObservedOctoberPanelRequired');if(['end18','end19'].includes(phase)&&(d.start!==(phase==='end18'?'2026-10-12':'2026-10-03')||d.end!==''))throw Error('ExpectedFirstDayOnly');}
+ const action=(await s.adsUi('fixed-seven-day-'+phase,spec)).value.result;if(!action?.ok||!action.data.dispatched)throw Error('ReportDateNotDispatched:'+JSON.stringify(action));
+ const after=(await s.adsRead('ui-after',{mode:phase==='open'?'calendar':'ui'})).value.result;if(!after?.ok)throw Error('OwnedReadbackRequired');const result={phase,dates_before:d,dates_after:after.data.dates,readback:after.data,paid_write:false};await s.store('store-date-state',result);return result;
+});
+const dir=path.resolve('outputs/ads-monitoring/2026-10-19/recovery-1832/reads');await fs.mkdir(dir,{recursive:true});await fs.writeFile(path.join(dir,sectionId+'.json'),JSON.stringify(out,null,2),{flag:'wx'});console.log(JSON.stringify({sectionId,status:out.status,...out.result}));

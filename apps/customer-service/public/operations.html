@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>马来西亚示例店 · 店铺运营工作台</title>
+  <link rel="stylesheet" href="/operations.css">
+  <script src="/operations.js" type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">跳到工作区</a>
+  <aside class="sidebar">
+    <a class="brand" href="/operations"><span class="mark" aria-hidden="true">H</span><span>示例运营工作台</span></a>
+    <nav class="navigation" aria-label="面板导航">
+      <a href="#workspace" aria-current="location"><span class="ops-icon home-icon" aria-hidden="true"></span>总览</a>
+      <a href="#warehouse"><span class="ops-icon truck-icon" aria-hidden="true"></span>发货中心</a>
+      <a href="#publishing"><span class="ops-icon video-icon" aria-hidden="true"></span>视频发布</a>
+      <a href="#overview"><span class="ops-icon chart-icon" aria-hidden="true"></span>经营数据</a>
+      <a href="/operations?role=procurement#tasks" data-role-link><span class="ops-icon box-icon" aria-hidden="true"></span>补货建议</a>
+      <a href="#tasks"><span class="ops-icon task-icon" aria-hidden="true"></span>任务中心</a>
+      <a href="#progress">岗位进度</a>
+      <a href="#daily">经营日报</a>
+    </nav>
+    <div class="sidebar-bottom"><span id="sync-state" class="chip muted">正在读取本地状态</span><a class="return-link" href="http://127.0.0.1:4320/">返回本地工作台</a></div>
+  </aside>
+  <div class="workspace">
+  <header class="wrap page-heading">
+    <div>
+      <h1 id="page-title">运营总览</h1>
+      <p class="market" id="market">TikTok Shop · MY</p>
+    </div>
+    <div class="page-actions">
+      <label class="activity-date"><span class="sr-only">运营日期</span><input id="activity-day" type="date" aria-label="运营日期" required></label>
+      <button id="refresh" class="primary-button" type="button"><span aria-hidden="true">↻</span> 刷新面板</button>
+    </div>
+  </header>
+  <main id="workspace" class="wrap" tabindex="-1">
+    <p id="error" class="error" role="status" hidden></p>
+    <p id="activity-error" class="error" role="status" hidden></p>
+    <section class="card priority-strip" aria-labelledby="priority-title">
+      <h2 id="priority-title">今日优先</h2>
+      <div>
+        <button type="button" data-activity-type="warehouse"><span class="signal amber" aria-hidden="true"></span><strong id="dispatch-count">仓库数量待核</strong><span class="priority-explain">检查各仓待发和分仓</span><span class="business-chevron" aria-hidden="true">›</span></button>
+        <a href="/operations?role=procurement#tasks" data-role-link><span class="signal blue" aria-hidden="true"></span><strong id="priority-replenishment">补货草案待核</strong><span class="priority-explain">核对库存与备货建议</span><span class="business-chevron" aria-hidden="true">›</span></a>
+      </div>
+    </section>
+    <div class="summary-grid" aria-label="运营指标">
+      <button type="button" class="card summary-card" data-activity-type="warehouse"><span class="summary-icon" aria-hidden="true"><span class="ops-icon box-icon"></span></span><span><span>待发货</span><strong id="kpi-dispatch">—</strong></span><span class="business-chevron" aria-hidden="true">›</span></button>
+      <button type="button" class="card summary-card" data-activity-type="collection"><span class="summary-icon" aria-hidden="true"><span class="ops-icon truck-icon"></span></span><span><span>待揽收</span><strong id="kpi-collection">—</strong></span><span class="business-chevron" aria-hidden="true">›</span></button>
+      <button type="button" class="card summary-card" data-activity-type="account"><span class="summary-icon" aria-hidden="true"><span class="ops-icon video-icon"></span></span><span><span id="kpi-publish-label">今日已发布</span><strong id="kpi-published">—</strong></span><span class="business-chevron" aria-hidden="true">›</span></button>
+      <a class="card summary-card" href="/operations?role=procurement#tasks" data-role-link><span class="summary-icon" aria-hidden="true"><span class="ops-icon stack-icon"></span></span><span><span>待确认补货</span><strong id="kpi-replenishment">—</strong></span><span class="business-chevron" aria-hidden="true">›</span></a>
+    </div>
+    <div class="business-grid">
+      <section id="warehouse" class="card business-card" aria-labelledby="warehouse-title">
+        <div class="business-header"><div><h2 id="warehouse-title">发货中心</h2><div id="warehouse-meta" class="business-meta">正在读取仓库回执</div></div><button type="button" class="section-link" data-activity-type="warehouse" aria-label="查看各仓待发订单">全部明细 <span aria-hidden="true">›</span></button></div>
+        <p id="warehouse-total" class="business-total" hidden></p>
+        <div id="warehouse-rows" class="business-rows"></div>
+        <p id="warehouse-message" class="business-note" hidden></p>
+      </section>
+      <section id="publishing" class="card business-card" aria-labelledby="publishing-title">
+        <div class="business-header"><div><h2 id="publishing-title">视频发布</h2><div id="publish-meta" class="business-meta">正在读取发布回执</div></div><button type="button" class="section-link" data-activity-type="account" aria-label="查看五账号发布明细">全部明细 <span aria-hidden="true">›</span></button></div>
+        <p id="publish-total" class="business-total" hidden></p>
+        <div id="publish-rows" class="business-rows"></div>
+        <p id="publish-message" class="business-note" hidden></p>
+      </section>
+      <section class="card business-card publish-chart" aria-labelledby="trend-title">
+        <div class="business-header"><div><h2 id="trend-title">近 7 日发布量</h2><p class="business-meta">点击日期查看五账号明细</p></div><span class="chart-key"><span class="signal blue"></span>已核发布</span></div>
+        <div id="publish-trend" class="publish-trend" aria-label="逐日已核发布数量"></div>
+      </section>
+      <section class="card business-card" aria-labelledby="quick-title">
+        <div class="business-header"><h2 id="quick-title">待处理</h2></div>
+        <div class="quick-actions" id="quick-actions">
+          <button type="button" data-activity-type="warehouse"><span class="ops-icon truck-icon" aria-hidden="true"></span><span>按仓查看待发</span><strong id="quick-dispatch">—</strong><span class="business-chevron" aria-hidden="true">›</span></button>
+          <a href="/operations?role=procurement#tasks" data-role-link><span class="ops-icon box-icon" aria-hidden="true"></span><span>补货待确认</span><strong id="quick-replenishment">—</strong><span class="business-chevron" aria-hidden="true">›</span></a>
+          <a href="#tasks"><span class="ops-icon task-icon" aria-hidden="true"></span><span>待复验任务</span><strong id="quick-retry">—</strong><span class="business-chevron" aria-hidden="true">›</span></a>
+          <a href="#progress"><span class="ops-icon stack-icon" aria-hidden="true"></span><span>各岗位进度</span><span></span><span class="business-chevron" aria-hidden="true">›</span></a>
+        </div>
+      </section>
+    </div>
+    <div class="task-layout">
+      <section id="tasks" class="card task-panel" aria-labelledby="tasks-title">
+        <div class="card-heading">
+          <h2 id="tasks-title">任务中心</h2>
+          <span id="queue-time"></span>
+        </div>
+        <nav id="role-links" class="role-links" aria-label="查看岗位任务">
+          <a href="/operations#tasks" aria-current="true">全部岗位</a>
+          <a href="/operations?role=procurement#tasks">采购备货</a>
+          <a href="/operations?role=video-production#tasks">视频制作</a>
+          <a href="/operations?role=video-publishing#tasks">视频发布</a>
+          <a href="/operations?role=ads-analysis#tasks">广告分析</a>
+        </nav>
+        <p id="task-status" class="note" role="status">正在读取任务队列…</p>
+        <div id="task-groups" class="task-groups" hidden></div>
+      </section>
+      <section class="card runs-panel" aria-labelledby="runs-title">
+        <div class="card-heading"><h2 id="runs-title">后台运行</h2></div>
+        <ul id="queue-runs" class="queue-runs"><li class="queue-run note">正在读取运行回执…</li></ul>
+      </section>
+    </div>
+    <section id="overview" class="card section-card store-panel" aria-labelledby="store-title">
+      <div class="card-heading section-heading"><h2 id="store-title">经营数据</h2><span id="sync-time"></span></div>
+      <div class="metrics" id="metrics" aria-label="店铺指标"></div>
+      <div class="overview-grid">
+        <section class="card chart-card" aria-labelledby="chart-title">
+          <div class="card-heading"><h2 id="chart-title">近 7 个自然日下单</h2><span>马来西亚时间</span></div>
+          <div id="chart" class="chart"></div>
+          <p class="note" id="chart-note"></p>
+        </section>
+        <section class="card attention-card" aria-labelledby="attention-title">
+          <div class="card-heading"><h2 id="attention-title">待跟进</h2></div>
+          <ul class="attention" id="attention"></ul>
+          <details id="promo-details" class="promo-details" hidden>
+            <summary id="promo-title"></summary>
+            <p class="note" id="promo-note"></p>
+            <ul id="promo-items"></ul>
+          </details>
+        </section>
+      </div>
+    </section>
+    <section id="progress" class="card section-card" aria-labelledby="progress-title">
+      <div class="card-heading section-heading">
+        <div><h2 id="progress-title">各岗位进度</h2><p class="note">排程读取本地配置，会话状态读取任务事件，业务结果以店铺数据和回执为准。</p></div>
+        <span id="checked-at"></span>
+      </div>
+      <div class="module-table" role="table" aria-label="各岗位进度">
+        <div class="module-header" role="row"><span role="columnheader">岗位</span><span role="columnheader">排程</span><span role="columnheader">最近结果</span><span role="columnheader">下一步</span></div>
+        <div id="modules" role="rowgroup"></div>
+      </div>
+    </section>
+    <section id="daily" class="card section-card report" aria-labelledby="report-title">
+      <div class="card-heading section-heading">
+        <div><h2 id="report-title">经营日报</h2><p id="report-time" class="note"></p></div>
+        <label for="day" class="date-select"><span>日期</span><select id="day" aria-label="选择日报日期"></select></label>
+      </div>
+      <div id="report-metrics" class="report-metrics"></div>
+      <ul id="report-list" class="report-list"></ul>
+    </section>
+  </main>
+  <footer class="wrap"><span id="footer-status"></span></footer>
+  </div>
+  <dialog id="drilldown" aria-labelledby="drill-title">
+    <div class="drill-shell">
+      <header class="drill-header"><div><h2 id="drill-title">活动明细</h2><div id="drill-meta" class="business-meta"></div></div><form method="dialog"><button type="submit" class="drill-close" aria-label="关闭明细" autofocus>×</button></form></header>
+      <div id="drill-body" class="drill-body"></div>
+    </div>
+  </dialog>
+</body>
+</html>

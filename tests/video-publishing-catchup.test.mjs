@@ -1,0 +1,26 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {planCatchup} from '../scripts/video-publishing/catchup-plan.mjs';
+const account='example-creator-1';
+const history={date:'2026-10-13',accounts:{[account]:{count:0,last_post_at:null}}};
+const post=(sha,at)=>({account,sha256:sha,published:true,published_at:'2026-10-13T'+at+':00+08:00'});
+const plan=(time,records=[])=>planCatchup({account,records,history,at:'2026-10-13T'+time+':00+08:00'});
+test('missed noon is due at 12:15 instead of waiting for 18:00',()=>assert.equal(plan('12:15').can_publish,true));
+test('successful post prevents early second even while catching up',()=>assert.equal(plan('18:45',[post('a','18:00')]).status,'waiting_interval'));
+test('exact one hour allows missing second',()=>assert.equal(plan('19:00',[post('a','18:00')]).can_publish,true));
+test('three success events for same hash count as one post',()=>assert.equal(plan('19:00',[post('a','12:00'),post('a','12:00'),post('a','12:00')]).count,1));
+test('unknown submission blocks replacing it with new material',()=>assert.equal(plan('19:00',[{account,sha256:'a',status:'unknown_after_submit'}]).can_publish,false));
+test('resolved unknown no longer blocks',()=>assert.equal(plan('19:00',[{account,sha256:'a',status:'unknown_after_submit'},post('a','12:00')]).can_publish,true));
+test('20:30 with zero posts can still fit three before close',()=>{const p=plan('20:30');assert.equal(p.remaining_capacity,3);assert.equal(p.can_publish,true);});
+test('22:30 zero posts can only recover one of the four target posts today',()=>{const p=plan('22:30');assert.equal(p.remaining_capacity,1);assert.equal(p.minimum_unfillable_today,3);assert.equal(p.can_publish,true);});
+test('23:00 is excluded even with shortage',()=>assert.equal(plan('23:00').status,'outside_work_hours'));
+test('three unique posts leave one open slot and four reach the daily cap',()=>{
+  const firstThree=[post('a','12:00'),post('b','18:00'),post('c','21:00')];
+  assert.equal(plan('22:30',firstThree).can_publish,true);
+  assert.equal(plan('22:30',[...firstThree,post('d','22:00')]).status,'daily_limit_reached');
+});
+test('yesterday zero baseline cannot be reused',()=>assert.equal(planCatchup({account,records:[],history:{...history,date:'2026-10-12'},at:'2026-10-13T12:15:00+08:00'}).status,'history_requires_reconciliation'));
+test('20:30 prioritizes eligible third before 21:00',()=>assert.equal(plan('20:30',[post('a','12:00'),post('b','18:00')]).can_publish,true));
+test('20:29 retains priority schedule when target is met',()=>assert.equal(plan('20:29',[post('a','12:00'),post('b','18:00')]).can_publish,false));
+test('20:30 reserve still respects exact one-hour interval',()=>assert.equal(plan('20:30',[post('a','12:00'),post('b','19:31')]).status,'waiting_interval'));
+test('20:30 reserve does not bypass unknown submission',()=>assert.equal(plan('20:30',[post('a','12:00'),post('b','18:00'),{account,sha256:'c',status:'unknown_after_submit'}]).status,'query_unknown_submission_first'));

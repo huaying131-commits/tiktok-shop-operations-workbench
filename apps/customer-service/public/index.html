@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>客服工作台 · 示例马来店运营助手</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="top-inner">
+      <a class="brand" href="/" aria-label="打开客服工作台">
+        <span class="brand-icon" aria-hidden="true"><i></i></span>
+        <span><strong>示例马来店</strong><small>运营助手</small></span>
+      </a>
+      <div class="top-actions">
+        <span class="test-badge"><i aria-hidden="true"></i>测试环境 · 未连接 TikTok Shop</span>
+        <a id="switch-view" class="top-link" href="/buyer" target="_blank" rel="noopener">打开买家测试端 <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="page-heading">
+      <div>
+        <h1 id="page-title">客服工作台</h1>
+        <p id="page-subtitle">接待买家咨询，核对关联订单与售后进度</p>
+        <p id="shop-api-entry" hidden><a class="top-link" href="https://localhost:3000/tts/connect" target="_blank" rel="noopener noreferrer">TikTok Shop 官方接入</a></p>
+      </div>
+      <div id="connection" class="connection" role="status" aria-live="polite" hidden></div>
+    </div>
+
+    <section id="desk" class="workbench" aria-label="客服工作台">
+      <aside class="inbox">
+        <div class="panel-heading"><h2>收件箱</h2><span class="panel-count" id="inbox-count"></span></div>
+        <div class="inbox-filters" aria-label="筛选会话">
+          <button type="button" data-filter="all" aria-pressed="true">全部</button>
+          <button type="button" data-filter="human" aria-pressed="false">待人工 <span id="human-count"></span></button>
+          <button type="button" data-filter="resolved" aria-pressed="false">已结案</button>
+        </div>
+        <div id="conversation-list" class="conversation-list"><p class="placeholder">正在载入会话…</p></div>
+        <footer class="inbox-footer"><i aria-hidden="true"></i>会话和订单均为测试数据</footer>
+      </aside>
+
+      <section class="thread" aria-label="当前对话">
+        <div id="thread-header" class="thread-header" hidden>
+          <div class="thread-person">
+            <span id="thread-avatar" class="avatar" aria-hidden="true"></span>
+            <div><h2 id="thread-name"></h2><p id="thread-topic"></p></div>
+          </div>
+          <div class="thread-actions">
+            <button class="button secondary" type="button" id="handoff">转人工</button>
+            <button class="button secondary" type="button" id="resolve">标为结案</button>
+          </div>
+        </div>
+        <div id="thread-notice" class="thread-notice" hidden></div>
+        <div id="thread-messages" class="messages" aria-label="消息记录" tabindex="0"><p class="placeholder">请选择一个会话。</p></div>
+        <form id="agent-form" class="composer" hidden>
+          <label for="agent-reply">客服回复</label>
+          <textarea id="agent-reply" name="text" rows="2" maxlength="1000" placeholder="输入要发送给买家的回复…" required></textarea>
+          <div class="composer-footer"><span class="form-status" id="agent-status" role="status"></span><button type="submit" id="send-reply" class="button primary">发送回复 <span aria-hidden="true">↗</span></button></div>
+        </form>
+      </section>
+
+      <aside class="details" aria-label="关联业务">
+        <div class="panel-heading"><h2>关联业务</h2></div>
+        <div class="detail-tabs" role="tablist" aria-label="业务信息">
+          <button type="button" id="tab-order" role="tab" aria-controls="detail-content" aria-selected="true" data-detail-tab="order">订单</button>
+          <button type="button" id="tab-shipment" role="tab" aria-controls="detail-content" aria-selected="false" data-detail-tab="shipment" tabindex="-1">物流</button>
+          <button type="button" id="tab-after-sales" role="tab" aria-controls="detail-content" aria-selected="false" data-detail-tab="afterSales" tabindex="-1">售后</button>
+        </div>
+        <div id="detail-content" class="detail-content" role="tabpanel" aria-labelledby="tab-order" tabindex="0"><p class="placeholder">请选择一个会话。</p></div>
+      </aside>
+    </section>
+
+    <section id="buyer-desk" class="buyer-card" aria-label="买家测试端" hidden>
+      <div class="buyer-heading">
+        <label for="buyer-conversation">测试会话</label>
+        <select id="buyer-conversation"></select>
+      </div>
+      <div id="buyer-messages" class="messages" aria-label="买家消息记录" tabindex="0"><p class="placeholder">正在载入会话…</p></div>
+      <form id="buyer-form" class="composer">
+        <label for="buyer-message">买家消息</label>
+        <textarea id="buyer-message" name="text" rows="2" maxlength="1000" placeholder="输入一条测试咨询…" required></textarea>
+        <div class="composer-footer"><span class="form-status" id="buyer-status" role="status"></span><button type="submit" id="send-buyer" class="button primary">发送消息 <span aria-hidden="true">↗</span></button></div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
