@@ -1,0 +1,30 @@
+[Unit]
+Description=Huaying TikTok Shop read-only API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=shopread
+Group=shopread
+WorkingDirectory=/opt/huaying-shop-read/releases/REPLACE_VERSION
+Environment=SHOP_CLOUD_READ_ENABLED=1
+Environment=SHOP_CLOUD_CONFIG=/etc/huaying-shop-read/config.json
+Environment=SHOP_CLOUD_KEY_FILE=/etc/huaying-shop-read/vault.key
+Environment=SHOP_CLOUD_PORT=8731
+# Keep refresh disabled until the old owner has stopped and cloud is sole owner.
+Environment=SHOP_CLOUD_REFRESH_OWNER=disabled
+# Use the actual immutable release path in both WorkingDirectory and ExecStart.
+ExecStart=/usr/bin/node /opt/huaying-shop-read/releases/REPLACE_VERSION/src/main.mjs
+Restart=on-failure
+RestartSec=15
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/huaying-shop-read
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

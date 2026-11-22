@@ -6,6 +6,8 @@ TikTok Shop 店铺运营源码，包含 Node.js 工作台、商品只读接口�
 
 - `apps/customer-service/` 工作台、店铺授权、本机同步与前端。
 - `apps/shop-agent-read/` 给 Agent 的只读商品、SKU 与图片接口。
+- `apps/cloud-shop-read/` 可独立部署的云端四路只读 API、独立 Agent 鉴权与持久授权刷新中心。
+- `apps/business-callback-receiver/` Business API 注册阶段 HTTPS 接收器，provider 关闭，不代表视频发布已接通。
 - `scripts/operations/` 工作台任务、上架、促销、广告、结算和发货影子。
 - `scripts/publisher/` 视频发布队列、校验、平台回执和离线测试。
 - `scripts/video-production/`、`scripts/video-publishing/` 与 `skills/` 制作、发布和运营辅助源码。
@@ -22,3 +24,12 @@ node apps/customer-service/server.mjs
 工作台默认监听 `http://127.0.0.1:3377/operations`。公开仓库保留示例配置与脱敏标识。连接自己的店铺需要替换示例店铺标识、提供运行配置并走官方授权。Windows 授权与仓库脚本依赖本机 DPAPI、PowerShell 或供应商账号，云端运行需要适配凭据存储和调度。广告和发布接口各自需要平台授权。
 
 原业务数据库、日志、媒体、授权文件、真实回执及生产配置由原运行环境保管。README 中的核心测试命令适用于干净检出。遗留活动测试依赖原工作目录已有缺口的 activity 模块。依赖原私有发布历史的回放测试需要提供自己的合法输入。外部 FastMoss MCP 适配器需要在自己的开发环境安装 `@modelcontextprotocol/sdk`，并配置提供商凭据。
+
+## 云端源码新增包
+
+云端两个独立包的部署、鉴权、缓存时间与限制见各自 README。它们不含真实店铺身份、服务器 IP、授权文件或生产密钥，示例值必须由部署负责人填写。只读服务只覆盖店铺、商品、最近 7 天订单和指定 SKU 库存；不包含业务写入、广告接口或视频实发。原工作台页面、Windows 运行器与实际云端地址需要另行配置，下载本仓库不会自动完成云迁移。
+
+```sh
+node --test apps/cloud-shop-read/test/*.test.mjs
+node --test apps/business-callback-receiver/test/*.test.mjs
+```

@@ -1,0 +1,10 @@
+{
+  "serviceId": "REPLACE_WITH_EXISTING_SHOP_SERVICE_ID",
+  "authorizationFile": "/var/lib/huaying-shop-read/authorization.enc",
+  "refreshLedgerDirectory": "/var/lib/huaying-shop-read/refresh-ledger",
+  "expectedShop": {"id":"REPLACE_WITH_AUTHORIZED_SHOP_ID","name":"REPLACE_WITH_EXACT_SHOP_NAME","region":"MY"},
+  "agents": [{"name":"agent_name","sha256":"REPLACE_WITH_SHA256_OF_UNIQUE_AGENT_TOKEN"}],
+  "legacyBridge": {"sha256":"REPLACE_WITH_SHA256_OF_SEPARATE_WINDOWS_BRIDGE_TOKEN"},
+  "backgroundSync": true,
+  "syncIntervalMs": 60000
+}

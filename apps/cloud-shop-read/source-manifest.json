@@ -1,0 +1,91 @@
+{
+  "format": "public-source-manifest/v1",
+  "purpose": "Sanitized public source; deployment credentials, production configuration and private evidence are excluded.",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 92,
+      "sha256": "23d22ae28a9bc146e3a5c75f799beee188b30ee624611f79e2ee89aaa7eaaf87"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6151,
+      "sha256": "537d29f06596d4e4a2c305def547ad67b0522ddcd727bb15cb4648baf87668d8"
+    },
+    {
+      "path": "config.example.json",
+      "bytes": 543,
+      "sha256": "54689b163ee06881ff550defc74079923e1138e089d477e1642d25124006d8fb"
+    },
+    {
+      "path": "package.json",
+      "bytes": 212,
+      "sha256": "e9e30076c2f80cc88e0fc306b87b13da17b1fed69ad71f07ee1a6d6844966749"
+    },
+    {
+      "path": "shop-cloud-read.service.example",
+      "bytes": 967,
+      "sha256": "8f3acb0960c84dcfad1d1e2f2faaee99f61a8366d72a38b9134db3bf0c053e0c"
+    },
+    {
+      "path": "smoke.mjs",
+      "bytes": 2748,
+      "sha256": "d54d4023a15d378b67a98cf0573d15c72a6bb1c176d766077e603e6d0dceda31"
+    },
+    {
+      "path": "src/authority.mjs",
+      "bytes": 11843,
+      "sha256": "da038049af5ce7a32b2e5dca5414cf61013c27fc52a7583a470b82326cafe9b1"
+    },
+    {
+      "path": "src/main.mjs",
+      "bytes": 4410,
+      "sha256": "4daf12aece2a052051f828ba71ac345d374e3c655e960145c41def2b3231c9ec"
+    },
+    {
+      "path": "src/runtime.mjs",
+      "bytes": 7411,
+      "sha256": "98bf62b116774331bfbd90509fb10eed0f7183998d5c543c887ff9f53dba2bc0"
+    },
+    {
+      "path": "src/tls-reload.mjs",
+      "bytes": 1891,
+      "sha256": "38d051287402e506967f9328aee887b063f4ec393a7db9b0970029b9579cd25f"
+    },
+    {
+      "path": "src/vault.mjs",
+      "bytes": 2083,
+      "sha256": "1be0e02fd43cbebdabe505aaa487b8386410450a71f6a1c145acb297bf684670"
+    },
+    {
+      "path": "src/vendor/tiktok-shop-read.mjs",
+      "bytes": 40324,
+      "sha256": "e0f99fd7c9f17a1af8155956d6c281d5e0e5ae4b11a707e7d6808044184274a2"
+    },
+    {
+      "path": "src/vendor/tiktok-shop-sync.mjs",
+      "bytes": 8225,
+      "sha256": "ca29003bd98e58f6feaca40cafacb77c70cd6cf4bcbe13a341d1e52a0450d59b"
+    },
+    {
+      "path": "test/authority.test.mjs",
+      "bytes": 14347,
+      "sha256": "14f0039166ea92ef46f7fe008506583efa45b5f3ad3b4db34032e0c1fd6bb127"
+    },
+    {
+      "path": "test/resource-limits.test.mjs",
+      "bytes": 5335,
+      "sha256": "6e2d45721f350195bc87ad2fab8adf76be2fdcf51301f05b50122f5cebf6a419"
+    },
+    {
+      "path": "test/runtime.test.mjs",
+      "bytes": 5887,
+      "sha256": "496dcd83bfbf5c440434cba199df15423fe84b0a29127c6fe58dee54941f0986"
+    },
+    {
+      "path": "test/tls.test.mjs",
+      "bytes": 2899,
+      "sha256": "4325eaf46268c467e1d0d4adeaa352fc85568581ce01bf2a4bec151b41d5e96b"
+    }
+  ]
+}

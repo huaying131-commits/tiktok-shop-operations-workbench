@@ -1,0 +1,56 @@
+{
+  "format": "public-source-manifest/v1",
+  "purpose": "Sanitized public source; deployment credentials, production configuration and private evidence are excluded.",
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 153,
+      "sha256": "6994edc5722b4ad27fd41ebd96bbb42fcfa6a1d0de99eeba29e921c05b19568e"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 71,
+      "sha256": "9fabb422eeee0e81ae737bd854abaa8750413138029350de332752a82f5032e1"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3197,
+      "sha256": "524c81e6c2a02a57a0afe25cb99a03e90b260f55281ab2d09328043adf7620f0"
+    },
+    {
+      "path": "huaying-business-callback.service.example",
+      "bytes": 941,
+      "sha256": "ca806650b2e689c41204bb1c293bf29c682da2903ea8fb825c2adab816536b65"
+    },
+    {
+      "path": "package.json",
+      "bytes": 201,
+      "sha256": "5a57bbb8e1c738989fabfc6c46cccfafe4a93a815cfc3d477847469708ba3389"
+    },
+    {
+      "path": "smoke.mjs",
+      "bytes": 1603,
+      "sha256": "3be7cafdd824dce62184f7ed70a463c5bd0e6452e2fb10a909789f51981f78b0"
+    },
+    {
+      "path": "src/main.mjs",
+      "bytes": 3500,
+      "sha256": "e609c96054e7615f58299390273da6a46c5a695cb4b5a44fb558342b0e8072ef"
+    },
+    {
+      "path": "src/oauth.mjs",
+      "bytes": 13201,
+      "sha256": "ee19142535ec6647173fd403b23774a13420e700b3d9bba0833d480a7e52e3e7"
+    },
+    {
+      "path": "src/tls-reload.mjs",
+      "bytes": 1891,
+      "sha256": "38d051287402e506967f9328aee887b063f4ec393a7db9b0970029b9579cd25f"
+    },
+    {
+      "path": "test/host.test.mjs",
+      "bytes": 6415,
+      "sha256": "bab12e272fe2d2c9fdd5fce3429ed85ca943a66cfa1a2e2c9d25f782ec4ae503"
+    }
+  ]
+}

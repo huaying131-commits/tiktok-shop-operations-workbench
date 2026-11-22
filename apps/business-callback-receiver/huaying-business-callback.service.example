@@ -1,0 +1,31 @@
+[Unit]
+Description=Huaying Business API registration-stage HTTPS callback receiver
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=huaying-shop
+Group=huaying-shop
+WorkingDirectory=/srv/huaying-business-callback/releases/REPLACE_VERSION
+Environment=CALLBACK_HOST_ENABLED=1
+Environment=PUBLIC_ORIGIN=https://callbacks.example.com:8444
+Environment=PUBLIC_BIND=0.0.0.0
+Environment=PORT=8444
+Environment=OAUTH_DATA_DIR=/var/lib/huaying-business-callback
+# Use the actual immutable release path in both WorkingDirectory and ExecStart.
+ExecStart=/usr/bin/node /srv/huaying-business-callback/releases/REPLACE_VERSION/src/main.mjs
+Restart=on-failure
+RestartSec=15
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/huaying-business-callback
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

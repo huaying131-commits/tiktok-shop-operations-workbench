@@ -1,0 +1,10 @@
+private/
+.private/
+refresh-ledger/
+config.json
+*.enc
+*.dpapi
+*.key
+*.tmp
+.env
+node_modules/

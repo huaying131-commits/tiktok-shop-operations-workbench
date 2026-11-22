@@ -1,0 +1,9 @@
+data/
+.private/
+private/
+*.enc
+*.dpapi
+*.key
+*.crt
+*.env
+!.env.example
