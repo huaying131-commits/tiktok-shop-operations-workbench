@@ -237,9 +237,9 @@ export function createService({ env, sql, transaction, api, media, now = () => D
         const result = await api.publishStatus({ accessToken: token.accessToken, businessId: c.subject_id, publishId: row.publish_id });
         const postIds = safeIds(result.postIds);
         const states = { PROCESSING: 'PROCESSING', FAILED: 'FAILED', PUBLISH_COMPLETE: postIds.length ? 'COMPLETE' : 'AWAITING_POST_IDS', SEND_TO_USER_INBOX: 'DRAFT', UNKNOWN: 'UNKNOWN' };
-        row = store.updatePublish(row.request_id, { state: states[result.state] || 'UNKNOWN', providerStatus: validString(result.providerStatus, 200) ? result.providerStatus : null, providerRequestId: validString(result.providerRequestId, 200) ? result.providerRequestId : null, postIds, now: now() });
-      } catch { return json({ ...publicReceipt(row), statusRead: 'UNKNOWN' }, 202); }
-      return json(publicReceipt(row));
+        const observed = store.observePublishStatus(row.request_id, { state: states[result.state] || 'UNKNOWN', providerStatus: validString(result.providerStatus, 200) ? result.providerStatus : null, providerRequestId: validString(result.providerRequestId, 200) ? result.providerRequestId : null, postIds, now: now() });
+        return json({ ...publicReceipt(observed.row), statusRead: observed.observation.disposition, statusObservation: observed.observation });
+      } catch { return json({ ...publicReceipt(store.publish(row.request_id)), statusRead: 'UNKNOWN' }, 202); }
     }
     const postsMatch = /^\/operator\/publish\/([A-Za-z0-9_-]{8,128})\/posts$/.exec(path);
     if (postsMatch && request.method === 'GET') {

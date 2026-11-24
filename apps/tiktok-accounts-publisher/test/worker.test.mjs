@@ -91,6 +91,107 @@ async function preparePublish(f, connectionId) {
 }
 const mediaStub = { initMedia() {}, putVerification() {}, async serveMedia() { return null; }, async putMedia() { return { sha256: sha, urlPath: '/media/' + sha, downloadToken: 'download', size: 4, expiresAt: 8_000_000 }; } };
 
+async function monotonicPublished(api = fakeApi()) {
+  const f = fixture(api, { media: mediaStub });
+  const { connectionId } = await verified(f);
+  const response = await f.req('/operator/publish', { method: 'POST', body: await preparePublish(f, connectionId) });
+  assert.equal(response.status, 202);
+  return f;
+}
+async function monotonicPoll(f, state, postIds = []) {
+  f.api.publishStatus = async () => ({ state, postIds, providerStatus: state, providerRequestId: 'observation-' + state });
+  return await (await f.req('/operator/publish/request-1/status')).json();
+}
+
+for (const [later, ids, disposition] of [
+  ['PROCESSING', [], 'STALE'],
+  ['UNKNOWN', [], 'STALE'],
+  ['PUBLISH_COMPLETE', [], 'STALE'],
+  ['FAILED', [], 'CONFLICT'],
+  ['SEND_TO_USER_INBOX', [], 'CONFLICT'],
+  ['PUBLISH_COMPLETE', ['different-post'], 'CONFLICT']
+]) test('monotonic COMPLETE preserves IDs after later ' + later + '/' + ids.join(','), async () => {
+  const f = await monotonicPublished();
+  await monotonicPoll(f, 'PUBLISH_COMPLETE', ['post-1']);
+  const after = await monotonicPoll(f, later, ids);
+  assert.equal(after.state, 'COMPLETE');
+  assert.deepEqual(after.postIds, ['post-1']);
+  assert.equal(after.statusRead, disposition);
+  assert.deepEqual(after.statusObservation.postIds, ids);
+  assert.equal(after.statusObservation.disposition, disposition);
+  assert.equal(f.db.prepare('SELECT state FROM publish_requests').get().state, 'COMPLETE');
+  assert.deepEqual(JSON.parse(f.db.prepare('SELECT post_ids FROM publish_requests').get().post_ids), ['post-1']);
+  const saved = f.db.prepare('SELECT * FROM publish_status_observations ORDER BY sequence DESC LIMIT 1').get();
+  assert.equal(saved.disposition, disposition);
+  assert.deepEqual(JSON.parse(saved.post_ids), ids);
+  assert.equal(f.api.calls.publish, 1);
+});
+
+test('monotonic AWAITING_POST_IDS keeps completion evidence while waiting and accepts first concrete IDs', async () => {
+  const f = await monotonicPublished();
+  assert.equal((await monotonicPoll(f, 'PUBLISH_COMPLETE')).state, 'AWAITING_POST_IDS');
+  const stale = await monotonicPoll(f, 'PROCESSING');
+  assert.equal(stale.state, 'AWAITING_POST_IDS');
+  assert.equal(stale.statusRead, 'STALE');
+  assert.deepEqual(stale.postIds, []);
+  const complete = await monotonicPoll(f, 'PUBLISH_COMPLETE', ['post-1']);
+  assert.equal(complete.state, 'COMPLETE');
+  assert.deepEqual(complete.postIds, ['post-1']);
+  assert.equal(f.api.calls.publish, 1);
+});
+
+test('monotonic AWAITING_POST_IDS preserves conflicting failure evidence without downgrading known completion', async () => {
+  const f = await monotonicPublished();
+  await monotonicPoll(f, 'PUBLISH_COMPLETE');
+  const conflict = await monotonicPoll(f, 'FAILED');
+  assert.equal(conflict.state, 'AWAITING_POST_IDS');
+  assert.deepEqual(conflict.postIds, []);
+  assert.equal(conflict.statusRead, 'CONFLICT');
+  assert.equal(conflict.statusObservation.state, 'FAILED');
+  assert.equal(f.db.prepare('SELECT COUNT(*) AS n FROM publish_status_observations').get().n, 2);
+});
+
+test('monotonic repeated completion accepts order-insensitive same ID set without replacing original ID order', async () => {
+  const f = await monotonicPublished();
+  await monotonicPoll(f, 'PUBLISH_COMPLETE', ['post-1', 'post-2']);
+  const result = await monotonicPoll(f, 'PUBLISH_COMPLETE', ['post-2', 'post-1']);
+  assert.equal(result.state, 'COMPLETE');
+  assert.deepEqual(result.postIds, ['post-1', 'post-2']);
+  assert.equal(result.statusRead, 'OBSERVED');
+});
+
+test('monotonic duplicate stored IDs cannot disguise a different incoming ID set as the same completion', async () => {
+  const f = await monotonicPublished();
+  await monotonicPoll(f, 'PUBLISH_COMPLETE', ['post-1', 'post-1']);
+  const result = await monotonicPoll(f, 'PUBLISH_COMPLETE', ['post-1', 'post-2']);
+  assert.equal(result.statusRead, 'CONFLICT');
+  assert.deepEqual(result.postIds, ['post-1', 'post-1']);
+  assert.deepEqual(result.statusObservation.postIds, ['post-1', 'post-2']);
+});
+
+for (const lateFailure of [false, true]) test('monotonic concurrent delayed ' + (lateFailure ? 'network failure' : 'PROCESSING') + ' cannot regress newer COMPLETE', async () => {
+  const f = await monotonicPublished();
+  let resolveFirst, rejectFirst, entered;
+  const firstEntered = new Promise(resolve => { entered = resolve; });
+  const blocked = new Promise((resolve, reject) => { resolveFirst = resolve; rejectFirst = reject; });
+  let calls = 0;
+  f.api.publishStatus = async () => {
+    if (++calls === 1) { entered(); return blocked; }
+    return { state: 'PUBLISH_COMPLETE', postIds: ['post-1'], providerStatus: 'PUBLISH_COMPLETE' };
+  };
+  const oldPoll = f.req('/operator/publish/request-1/status');
+  await firstEntered;
+  const complete = await (await f.req('/operator/publish/request-1/status')).json();
+  assert.equal(complete.state, 'COMPLETE');
+  if (lateFailure) rejectFirst(new Error('fixture transport failure'));
+  else resolveFirst({ state: 'PROCESSING', postIds: [], providerStatus: 'PROCESSING_DOWNLOAD' });
+  const late = await (await oldPoll).json();
+  assert.equal(late.state, 'COMPLETE');
+  assert.deepEqual(late.postIds, ['post-1']);
+  assert.equal(f.db.prepare('SELECT state FROM publish_requests').get().state, 'COMPLETE');
+  assert.equal(f.api.calls.publish, 1);
+});
+
 test('operator routes reject missing/Shop credentials and forged identities; advertiser route remains disabled', async () => {
   const f = fixture();
   assert.equal((await f.req('/operator/accounts', { operator: false })).status, 401);

@@ -10,7 +10,8 @@ export class StateStore {
       `CREATE TABLE IF NOT EXISTS publish_requests (request_id TEXT PRIMARY KEY, intent_hash TEXT NOT NULL, asset_sha256 TEXT NOT NULL UNIQUE, connection_id TEXT NOT NULL, app_id TEXT NOT NULL, tenant_id TEXT NOT NULL, actor_id TEXT NOT NULL, provider TEXT NOT NULL, state TEXT NOT NULL, publish_id TEXT, provider_request_id TEXT, provider_status TEXT, post_ids TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)`,
       `CREATE TABLE IF NOT EXISTS url_properties (url TEXT PRIMARY KEY, property_status INTEGER NOT NULL, updated_at INTEGER NOT NULL)`,
       `CREATE TABLE IF NOT EXISTS uploaded_assets (sha256 TEXT NOT NULL, url TEXT PRIMARY KEY, expires_at INTEGER NOT NULL)`,
-      `CREATE TABLE IF NOT EXISTS post_readbacks (request_id TEXT PRIMARY KEY, receipt TEXT NOT NULL, updated_at INTEGER NOT NULL)`
+      `CREATE TABLE IF NOT EXISTS post_readbacks (request_id TEXT PRIMARY KEY, receipt TEXT NOT NULL, updated_at INTEGER NOT NULL)`,
+      `CREATE TABLE IF NOT EXISTS publish_status_observations (sequence INTEGER PRIMARY KEY AUTOINCREMENT, request_id TEXT NOT NULL, state TEXT NOT NULL, provider_status TEXT, provider_request_id TEXT, post_ids TEXT NOT NULL, disposition TEXT NOT NULL, observed_at INTEGER NOT NULL)`
     ]) sql.exec(query);
   }
   rows(query, ...values) { return [...this.sql.exec(query, ...values)]; }
@@ -90,6 +91,29 @@ export class StateStore {
     const row = this.publish(id); if (!row) throw new StateError(404, 'request_not_found');
     this.sql.exec('UPDATE publish_requests SET state = ?, publish_id = ?, provider_request_id = ?, provider_status = ?, post_ids = ?, updated_at = ? WHERE request_id = ?', state, publishId || row.publish_id, providerRequestId || row.provider_request_id, providerStatus || row.provider_status, JSON.stringify(postIds), now, id);
     return this.publish(id);
+  }
+  observePublishStatus(id, { state, providerRequestId, providerStatus, postIds, now }) {
+    return this.transaction(() => {
+      // Re-read after the provider await: another poll may already have completed.
+      const previous = this.publish(id); if (!previous) throw new StateError(404, 'request_not_found');
+      const knownIds = JSON.parse(previous.post_ids);
+      const sameIds = new Set(knownIds).size === knownIds.length && new Set(postIds).size === postIds.length &&
+        knownIds.length === postIds.length && knownIds.every(value => postIds.includes(value));
+      let disposition = 'OBSERVED';
+      if (previous.state === 'COMPLETE' && (state !== 'COMPLETE' || !sameIds)) {
+        disposition = ['PROCESSING', 'UNKNOWN', 'AWAITING_POST_IDS'].includes(state) ? 'STALE' : 'CONFLICT';
+      } else if (previous.state === 'AWAITING_POST_IDS' && !['AWAITING_POST_IDS', 'COMPLETE'].includes(state)) {
+        disposition = ['PROCESSING', 'UNKNOWN'].includes(state) ? 'STALE' : 'CONFLICT';
+      }
+      const row = disposition === 'OBSERVED' ? this.updatePublish(id, {
+        state, providerRequestId, providerStatus,
+        postIds: previous.state === 'COMPLETE' ? knownIds : postIds, now
+      }) : previous;
+      // Store safe contradictory/stale observations separately; never erase prior IDs.
+      this.sql.exec('INSERT INTO publish_status_observations (request_id,state,provider_status,provider_request_id,post_ids,disposition,observed_at) VALUES (?,?,?,?,?,?,?)',
+        id, state, providerStatus, providerRequestId, JSON.stringify(postIds), disposition, now);
+      return { row, observation: { state, providerStatus, providerRequestId, postIds, disposition, observedAt: new Date(now).toISOString() } };
+    });
   }
   saveReadback(requestId, receipt, now) { this.sql.exec('INSERT OR REPLACE INTO post_readbacks VALUES (?, ?, ?)', requestId, JSON.stringify(receipt), now); }
 }
